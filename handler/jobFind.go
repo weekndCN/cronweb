@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -8,25 +10,30 @@ import (
 	"github.com/weekndCN/cronweb/jobs"
 )
 
-// HandleDelete delete a job api
-func HandleDelete(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
+// HandleFind find a job api
+func HandleFind(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-
 		name, ok := vars["name"]
+
 		if !ok {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Bad Request or not passing name parameter"))
+			w.Write([]byte("Bad Request or Bad Parameter"))
 			return
 		}
 
-		if err := event.Delete(c, name); err != nil {
+		job, err := event.Find(c, name)
+		if err != nil {
+			fmt.Println(err)
+		}
+		data, err := json.Marshal(*job)
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			w.Write([]byte("Marshal failed"))
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Delete Job Success"))
+		w.Write(data)
 	}
 }

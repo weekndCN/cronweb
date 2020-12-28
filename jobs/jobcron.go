@@ -23,14 +23,14 @@ func New() JobCron {
 }
 
 // List methods list all jobs
-func (c *Jobs) List() ([]Job, error) {
+func (c *Jobs) List() (*[]Job, error) {
 	task := []Job{}
 	c.Lock()
 	for _, v := range c.Tasks {
 		task = append(task, v)
 	}
 	c.Unlock()
-	return task, nil
+	return &task, nil
 }
 
 // Find find a job

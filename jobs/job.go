@@ -19,7 +19,7 @@ type (
 		Add(*cron.Cron, Job) error
 		Delete(*cron.Cron, string) error
 		Update(*cron.Cron, string) error
-		List() ([]Job, error)
+		List() (*[]Job, error)
 		Count() (int, error)
 	}
 )
