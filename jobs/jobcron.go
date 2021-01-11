@@ -10,7 +10,7 @@ import (
 	"github.com/weekndCN/cronweb/dingtalk"
 )
 
-const webhook = "https://oapi.dingtalk.com/robot/send?access_token=25fae4b3310f8d6ead524fc1c05886c175f1346617d58271524d3b3a073cedac"
+const webhook = "https://oapi.dingtalk.com/robot/send?access_token=xxxx"
 
 // Jobs store all jobs in-memory
 type Jobs struct {
