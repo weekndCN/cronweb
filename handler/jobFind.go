@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -24,7 +23,9 @@ func HandleFind(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 
 		job, err := event.Find(c, name)
 		if err != nil {
-			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
 		}
 		data, err := json.Marshal(*job)
 		if err != nil {

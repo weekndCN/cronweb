@@ -26,10 +26,10 @@ func NewAPI(cron *cron.Cron, jobs jobs.JobCron) Server {
 func (s Server) Handler() http.Handler {
 	r := mux.NewRouter()
 	r.HandleFunc("/list", HandleList(s.jobCron)).Methods("GET")
+	r.HandleFunc("/count", HandleCount(s.jobCron)).Methods("GET")
 	r.HandleFunc("/{name}", HandleFind(s.cron, s.jobCron)).Methods("GET")
 	r.HandleFunc("/{name}", HandleDelete(s.cron, s.jobCron)).Methods("DELETE")
 	r.HandleFunc("/add", HandleAdd(s.cron, s.jobCron)).Methods("POST")
 	r.HandleFunc("/update", HandleUpdate(s.cron)).Methods("POST")
-	r.HandleFunc("/count", HandleCount(s.jobCron)).Methods("GET")
 	return r
 }

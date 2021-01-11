@@ -7,7 +7,10 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/weekndCN/cronweb/dingtalk"
 )
+
+const webhook = "https://oapi.dingtalk.com/robot/send?access_token=25fae4b3310f8d6ead524fc1c05886c175f1346617d58271524d3b3a073cedac"
 
 // Jobs store all jobs in-memory
 type Jobs struct {
@@ -53,15 +56,53 @@ func (c *Jobs) Find(cron *cron.Cron, jobName string) (*Job, error) {
 
 // Add  add a job
 func (c *Jobs) Add(cron *cron.Cron, job Job) error {
-
+	robot := dingtalk.NewRobot(webhook)
 	if _, ok := c.Tasks[job.Name]; ok {
 		return fmt.Errorf("不能存在重复Job名称")
 	}
 
 	job.Created = time.Now().Unix()
-
 	id, err := cron.AddFunc(job.Scheduler, func() {
-		log.Println(job.Action)
+		msg, err := HTTPGet(job.Action)
+		if err != nil {
+			log.Println(err)
+		}
+		level := "Info"
+		// if http request time(gap time) greater than job timeout
+		if msg.Gap > job.Timeout && err == nil {
+			level = "Warning"
+		}
+
+		if err != nil || msg.StatusCode >= 400 {
+			level = "Error"
+		}
+
+		if err == nil && 200 <= msg.StatusCode && msg.StatusCode <= 300 {
+			level = "Success"
+		}
+
+		switch job.Alert {
+		case "Always":
+			text := dingtalk.MsgText("#0DAD51", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Gap, msg.StatusCode)
+			if err != nil {
+				text = dingtalk.MsgText("#FF0000", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), err.Error(), msg.Gap, msg.StatusCode)
+			}
+			robot.SendMarkdown(msg.Name, text, nil, false)
+		case "Success":
+			if level == "Success" {
+				text := dingtalk.MsgText("#0DAD51", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Gap, msg.StatusCode)
+				robot.SendMarkdown(msg.Name, text, nil, false)
+			}
+		case "Failed":
+			if level == "Error" {
+				text := dingtalk.MsgText("#FF0000", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Gap, msg.StatusCode)
+				robot.SendMarkdown(msg.Name, text, nil, false)
+			}
+		default:
+			break
+		}
+
+		log.Printf("job:%s task:%s run with %s statusCode: %d\n", job.Name, msg.Name, level, msg.StatusCode)
 	})
 
 	if err != nil {

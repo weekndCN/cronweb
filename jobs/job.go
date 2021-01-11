@@ -11,6 +11,8 @@ type (
 		Scheduler string       `json:"scheduler"`
 		Created   int64        `json:"created,omitempty"`
 		Action    string       `json:"action"`
+		Timeout   int64        `json:"timeout,omitempty"`
+		Alert     string       `json:"alert"`
 	}
 
 	// JobCron cron jobs abstract concept

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -12,9 +13,11 @@ import (
 // HandleAdd add job api
 func HandleAdd(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/json")
 		var job jobs.Job
 		data, err := ioutil.ReadAll(r.Body)
+		fmt.Println(string(data))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("无法解析body的内容"))
