@@ -2,15 +2,15 @@ package jobs
 
 import (
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/weekndCN/cronweb/dingtalk"
 )
 
-const webhook = "https://oapi.dingtalk.com/robot/send?access_token=25fae4b3310f8d6ead524fc1c05886c175f1346617d58271524d3b3a073cedac"
+var log = logrus.New()
 
 // Jobs store all jobs in-memory
 type Jobs struct {
@@ -56,7 +56,7 @@ func (c *Jobs) Find(cron *cron.Cron, jobName string) (*Job, error) {
 
 // Add  add a job
 func (c *Jobs) Add(cron *cron.Cron, job Job) error {
-	robot := dingtalk.NewRobot(webhook)
+	robot := dingtalk.NewRobot(fmt.Sprintf("https://oapi.dingtalk.com/robot/send?access_token=%s", job.Webhook))
 	if _, ok := c.Tasks[job.Name]; ok {
 		return fmt.Errorf("不能存在重复Job名称")
 	}
@@ -69,7 +69,7 @@ func (c *Jobs) Add(cron *cron.Cron, job Job) error {
 		}
 		level := "Info"
 		// if http request time(gap time) greater than job timeout
-		if msg.Gap > job.Timeout && err == nil {
+		if msg.Duration > job.Timeout && err == nil {
 			level = "Warning"
 		}
 
@@ -83,19 +83,19 @@ func (c *Jobs) Add(cron *cron.Cron, job Job) error {
 
 		switch job.Alert {
 		case "Always":
-			text := dingtalk.MsgText("#0DAD51", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Gap, msg.StatusCode)
+			text := dingtalk.MsgText("#0DAD51", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Duration, msg.StatusCode)
 			if err != nil {
-				text = dingtalk.MsgText("#FF0000", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), err.Error(), msg.Gap, msg.StatusCode)
+				text = dingtalk.MsgText("#FF0000", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), err.Error(), msg.Duration, msg.StatusCode)
 			}
 			robot.SendMarkdown(msg.Name, text, nil, false)
 		case "Success":
 			if level == "Success" {
-				text := dingtalk.MsgText("#0DAD51", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Gap, msg.StatusCode)
+				text := dingtalk.MsgText("#0DAD51", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Duration, msg.StatusCode)
 				robot.SendMarkdown(msg.Name, text, nil, false)
 			}
 		case "Failed":
 			if level == "Error" {
-				text := dingtalk.MsgText("#FF0000", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Gap, msg.StatusCode)
+				text := dingtalk.MsgText("#FF0000", job.Name, msg.Name, level, msg.Start.Format(time.UnixDate), string(msg.Body), msg.Duration, msg.StatusCode)
 				robot.SendMarkdown(msg.Name, text, nil, false)
 			}
 		default:

@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
 	"github.com/weekndCN/cronweb/jobs"
+	"github.com/weekndCN/cronweb/logger"
 )
 
 // HandleFind find a job api
@@ -16,25 +17,24 @@ func HandleFind(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 		name, ok := vars["name"]
 
 		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Bad Request or Bad Parameter"))
+			logger.FromRequest(r).WithError(ErrNotFound).Debugln("name参数不存在")
+			BadRequestf(w, "name参数不存在")
 			return
 		}
 
 		job, err := event.Find(c, name)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			logger.FromRequest(r).WithError(err).Debugln("job获取失败")
+			BadRequest(w, err)
 			return
 		}
 		data, err := json.Marshal(*job)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Marshal failed"))
+			logger.FromRequest(r).WithError(err).Debugln("json转换失败")
+			InternalError(w, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write(data)
+		JSON(w, data, 200)
 	}
 }

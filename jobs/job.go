@@ -13,6 +13,7 @@ type (
 		Action    string       `json:"action"`
 		Timeout   int64        `json:"timeout,omitempty"`
 		Alert     string       `json:"alert"`
+		Webhook   string       `json:"webhook,omitempty"`
 	}
 
 	// JobCron cron jobs abstract concept

@@ -2,7 +2,6 @@ package jobs
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -11,13 +10,14 @@ import (
 type Message struct {
 	Name       string
 	Start      time.Time
-	Gap        int64
+	Duration   int64
 	Body       []byte
 	StatusCode int
 }
 
 // HTTPGet http get method
 func HTTPGet(url string) (msg Message, err error) {
+	// set timezone
 	loc, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
 		log.Println(err)
@@ -34,7 +34,7 @@ func HTTPGet(url string) (msg Message, err error) {
 	}
 	// count time diff
 	tcost := end.Sub(start).Milliseconds()
-	message.Gap = tcost
+	message.Duration = tcost
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

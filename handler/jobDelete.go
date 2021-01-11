@@ -6,7 +6,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
 	"github.com/weekndCN/cronweb/jobs"
+	"github.com/weekndCN/cronweb/logger"
 )
+
+// Res
+type Res struct {
+	Result string `json:"res"`
+}
 
 // HandleDelete delete a job api
 func HandleDelete(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
@@ -15,18 +21,18 @@ func HandleDelete(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 
 		name, ok := vars["name"]
 		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Bad Request or not passing name parameter"))
+			logger.FromRequest(r).WithError(ErrNotFound).Debugln("name参数不存在")
+			BadRequestf(w, "name参数不存在")
 			return
 		}
 
 		if err := event.Delete(c, name); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			InternalError(w, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Delete Job Success"))
+		res := &Res{Result: "Delete Job Success"}
+
+		JSON(w, res, 200)
 	}
 }

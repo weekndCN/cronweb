@@ -1,34 +1,27 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/weekndCN/cronweb/jobs"
+	"github.com/weekndCN/cronweb/logger"
 )
+
+// Count job numbers
+type Count struct {
+	Num int `json:"num"`
+}
 
 // HandleCount Count jobs
 func HandleCount(jobs jobs.JobCron) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h := w.Header()
-		h.Set("Content-Type", "application/json")
 		num, err := jobs.Count()
-
 		if err != nil {
-			fmt.Println(err)
+			logger.FromRequest(r).WithError(err).Debugln("job count failed")
+			InternalError(w, err)
+			return
 		}
-
-		// json Output
-		data := struct {
-			Num int `json:"num"`
-		}{Num: num}
-		msg, err := json.Marshal(data)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write(msg)
+		data := &Count{Num: num}
+		JSON(w, data, 200)
 	}
 }

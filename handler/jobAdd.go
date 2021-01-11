@@ -2,12 +2,12 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/robfig/cron/v3"
 	"github.com/weekndCN/cronweb/jobs"
+	"github.com/weekndCN/cronweb/logger"
 )
 
 // HandleAdd add job api
@@ -17,27 +17,31 @@ func HandleAdd(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		var job jobs.Job
 		data, err := ioutil.ReadAll(r.Body)
-		fmt.Println(string(data))
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("无法解析body的内容"))
+			InternalError(w, err)
+			logger.FromRequest(r).WithError(err).Debugln("无法解析body的内容")
 			return
 		}
+
 		err = json.Unmarshal(data, &job)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Json数据格式或者参数错误"))
+			logger.FromRequest(r).WithError(err).Debugln("Json数据格式或者参数错误")
+			BadRequest(w, err)
+			return
+		}
+
+		if job.Name == "" || job.Scheduler == "" || job.Alert == "" || job.Action == "" {
+			logger.FromRequest(r).WithError(err).Debugln("Json数据格式或者参数错误")
+			BadRequestf(w, "Json数据格式或者参数错误")
 			return
 		}
 
 		err = event.Add(c, job)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			logger.FromRequest(r).WithError(err).Debugln("任务添加失败")
+			InternalError(w, err)
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("任务添加成功"))
+		JSON(w, "任务添加成功", 200)
 	}
 }

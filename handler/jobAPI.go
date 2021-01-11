@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
 	"github.com/weekndCN/cronweb/jobs"
+	"github.com/weekndCN/cronweb/logger"
 )
 
 // Server job server
@@ -25,6 +26,7 @@ func NewAPI(cron *cron.Cron, jobs jobs.JobCron) Server {
 // Handler endpoints handler
 func (s Server) Handler() http.Handler {
 	r := mux.NewRouter()
+	r.Use(logger.Middleware)
 	r.HandleFunc("/list", HandleList(s.jobCron)).Methods("GET")
 	r.HandleFunc("/count", HandleCount(s.jobCron)).Methods("GET")
 	r.HandleFunc("/{name}", HandleFind(s.cron, s.jobCron)).Methods("GET")
