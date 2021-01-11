@@ -9,7 +9,7 @@ import (
 	"github.com/weekndCN/cronweb/logger"
 )
 
-// Res
+// Res .
 type Res struct {
 	Result string `json:"res"`
 }

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/weekndCN/cronweb/jobs"
@@ -18,12 +17,6 @@ func HandleList(event jobs.JobCron) http.HandlerFunc {
 			return
 		}
 
-		data, err := json.Marshal(tasks)
-		if err != nil {
-			logger.FromRequest(r).WithError(err).Debugln("Json格式化失败")
-			InternalError(w, err)
-			return
-		}
-		JSON(w, data, 200)
+		JSON(w, tasks, 200)
 	}
 }

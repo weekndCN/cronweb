@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -28,13 +27,7 @@ func HandleFind(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 			BadRequest(w, err)
 			return
 		}
-		data, err := json.Marshal(*job)
-		if err != nil {
-			logger.FromRequest(r).WithError(err).Debugln("json转换失败")
-			InternalError(w, err)
-			return
-		}
 
-		JSON(w, data, 200)
+		JSON(w, job, 200)
 	}
 }
