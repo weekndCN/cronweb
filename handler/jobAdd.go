@@ -13,8 +13,6 @@ import (
 // HandleAdd add job api
 func HandleAdd(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Content-Type", "application/json")
 		var job jobs.Job
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
