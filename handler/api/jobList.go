@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	req "github.com/weekndCN/rw-cron/handler/request"
 	"github.com/weekndCN/rw-cron/jobs"
 	"github.com/weekndCN/rw-cron/logger"
 )
@@ -13,10 +14,10 @@ func HandleList(event jobs.JobCron) http.HandlerFunc {
 		tasks, err := event.List()
 		if err != nil {
 			logger.FromRequest(r).WithError(err).Debugln("list jobs失败")
-			InternalError(w, err)
+			req.InternalError(w, err)
 			return
 		}
 
-		JSON(w, tasks, 200)
+		req.JSON(w, tasks, 200)
 	}
 }

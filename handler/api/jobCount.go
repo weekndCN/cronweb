@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	req "github.com/weekndCN/rw-cron/handler/request"
 	"github.com/weekndCN/rw-cron/jobs"
 	"github.com/weekndCN/rw-cron/logger"
 )
@@ -18,10 +19,10 @@ func HandleCount(jobs jobs.JobCron) http.HandlerFunc {
 		num, err := jobs.Count()
 		if err != nil {
 			logger.FromRequest(r).WithError(err).Debugln("job count failed")
-			InternalError(w, err)
+			req.InternalError(w, err)
 			return
 		}
 		data := &Count{Num: num}
-		JSON(w, data, 200)
+		req.JSON(w, data, 200)
 	}
 }

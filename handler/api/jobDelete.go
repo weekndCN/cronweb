@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
-	"github.com/weekndCN/rw-cron/handler"
+	req "github.com/weekndCN/rw-cron/handler/request"
 	"github.com/weekndCN/rw-cron/jobs"
 	"github.com/weekndCN/rw-cron/logger"
 )
@@ -22,18 +22,18 @@ func HandleDelete(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 
 		name, ok := vars["name"]
 		if !ok {
-			logger.FromRequest(r).WithError(ErrNotFound).Debugln("name参数不存在")
-			handler.BadRequestf(w, "name参数不存在")
+			logger.FromRequest(r).WithError(req.ErrNotFound).Debugln("name参数不存在")
+			req.BadRequestf(w, "name参数不存在")
 			return
 		}
 
 		if err := event.Delete(c, name); err != nil {
-			handler.InternalError(w, err)
+			req.InternalError(w, err)
 			return
 		}
 
 		res := &Res{Result: "Delete Job Success"}
 
-		handler.JSON(w, res, 200)
+		req.JSON(w, res, 200)
 	}
 }

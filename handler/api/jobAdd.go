@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/robfig/cron/v3"
+	req "github.com/weekndCN/rw-cron/handler/request"
 	"github.com/weekndCN/rw-cron/jobs"
 	"github.com/weekndCN/rw-cron/logger"
 )
@@ -16,7 +17,7 @@ func HandleAdd(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 		var job jobs.Job
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			InternalError(w, err)
+			req.InternalError(w, err)
 			logger.FromRequest(r).WithError(err).Debugln("无法解析body的内容")
 			return
 		}
@@ -24,22 +25,22 @@ func HandleAdd(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 		err = json.Unmarshal(data, &job)
 		if err != nil {
 			logger.FromRequest(r).WithError(err).Debugln("Json数据格式或者参数错误")
-			BadRequest(w, err)
+			req.BadRequest(w, err)
 			return
 		}
 
 		if job.Name == "" || job.Scheduler == "" || job.Action == "" {
 			logger.FromRequest(r).WithError(err).Debugln("Json数据格式或者参数错误")
-			BadRequestf(w, "Json数据格式或者参数错误")
+			req.BadRequestf(w, "Json数据格式或者参数错误")
 			return
 		}
 
 		err = event.Add(c, job)
 		if err != nil {
 			logger.FromRequest(r).WithError(err).Debugln("任务添加失败")
-			InternalError(w, err)
+			req.InternalError(w, err)
 			return
 		}
-		JSON(w, "任务添加成功", 200)
+		req.JSON(w, "任务添加成功", 200)
 	}
 }
