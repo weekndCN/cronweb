@@ -7,7 +7,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
-	"github.com/weekndCN/cronweb/dingtalk"
+	"github.com/weekndCN/rw-cron/dingtalk"
 )
 
 var log = logrus.New()
@@ -40,6 +40,8 @@ func (c *Jobs) List() (*[]Job, error) {
 func (c *Jobs) Find(cron *cron.Cron, jobName string) (*Job, error) {
 	// job datastore search
 	task, ok := c.Tasks[jobName]
+	log.Println("Name:", jobName)
+	log.Println("Task:", c.Tasks)
 	if !ok {
 		return nil, fmt.Errorf("%s not in-memory", jobName)
 	}
@@ -106,8 +108,9 @@ func (c *Jobs) Add(cron *cron.Cron, job Job) error {
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+
 	// set job id
 	job.ID = id
 	// add job to job in-memory data store

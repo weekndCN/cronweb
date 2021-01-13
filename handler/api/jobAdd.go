@@ -1,4 +1,4 @@
-package handler
+package api
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/robfig/cron/v3"
-	"github.com/weekndCN/cronweb/jobs"
-	"github.com/weekndCN/cronweb/logger"
+	"github.com/weekndCN/rw-cron/jobs"
+	"github.com/weekndCN/rw-cron/logger"
 )
 
 // HandleAdd add job api
@@ -28,7 +28,7 @@ func HandleAdd(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 			return
 		}
 
-		if job.Name == "" || job.Scheduler == "" || job.Alert == "" || job.Action == "" {
+		if job.Name == "" || job.Scheduler == "" || job.Action == "" {
 			logger.FromRequest(r).WithError(err).Debugln("Json数据格式或者参数错误")
 			BadRequestf(w, "Json数据格式或者参数错误")
 			return

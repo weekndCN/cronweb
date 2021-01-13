@@ -1,12 +1,12 @@
-package handler
+package api
 
 import (
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
-	"github.com/weekndCN/cronweb/jobs"
-	"github.com/weekndCN/cronweb/logger"
+	"github.com/weekndCN/rw-cron/jobs"
+	"github.com/weekndCN/rw-cron/logger"
 )
 
 // HandleFind find a job api

@@ -28,13 +28,10 @@ func TestEmptyContext(t *testing.T) {
 
 func TestRequest(t *testing.T) {
 	entry := logrus.NewEntry(logrus.StandardLogger())
-
 	ctx := WithContext(context.Background(), entry)
 	req := new(http.Request)
 	req = req.WithContext(ctx)
-
 	got := FromRequest(req)
-
 	if got != entry {
 		t.Errorf("Expected Logger from http.Request")
 	}

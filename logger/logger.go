@@ -18,6 +18,12 @@ func WithContext(ctx context.Context, logger *logrus.Entry) context.Context {
 	return context.WithValue(ctx, loggerKey{}, logger)
 }
 
+// FromRequest receiver the current logger from the request.
+// if no avalable. use default
+func FromRequest(r *http.Request) *logrus.Entry {
+	return FromContext(r.Context())
+}
+
 // FromContext receiver current logger from the context.
 // if not available. use default
 func FromContext(ctx context.Context) *logrus.Entry {
@@ -27,10 +33,4 @@ func FromContext(ctx context.Context) *logrus.Entry {
 	}
 
 	return logger.(*logrus.Entry)
-}
-
-// FromRequest receiver the current logger from the request.
-// if no avalable. use default
-func FromRequest(r *http.Request) *logrus.Entry {
-	return FromContext(r.Context())
 }

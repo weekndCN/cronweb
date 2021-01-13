@@ -1,10 +1,10 @@
-package handler
+package api
 
 import (
 	"net/http"
 
-	"github.com/weekndCN/cronweb/jobs"
-	"github.com/weekndCN/cronweb/logger"
+	"github.com/weekndCN/rw-cron/jobs"
+	"github.com/weekndCN/rw-cron/logger"
 )
 
 // Count job numbers

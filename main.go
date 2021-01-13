@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/robfig/cron/v3"
-	"github.com/weekndCN/cronweb/handler"
-	"github.com/weekndCN/cronweb/jobs"
+	"github.com/sirupsen/logrus"
+	"github.com/weekndCN/rw-cron/handler"
+	"github.com/weekndCN/rw-cron/jobs"
 )
 
 // initLogging can pass config inital value if need

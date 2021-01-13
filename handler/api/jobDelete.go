@@ -1,12 +1,13 @@
-package handler
+package api
 
 import (
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron/v3"
-	"github.com/weekndCN/cronweb/jobs"
-	"github.com/weekndCN/cronweb/logger"
+	"github.com/weekndCN/rw-cron/handler"
+	"github.com/weekndCN/rw-cron/jobs"
+	"github.com/weekndCN/rw-cron/logger"
 )
 
 // Res .
@@ -22,17 +23,17 @@ func HandleDelete(c *cron.Cron, event jobs.JobCron) http.HandlerFunc {
 		name, ok := vars["name"]
 		if !ok {
 			logger.FromRequest(r).WithError(ErrNotFound).Debugln("name参数不存在")
-			BadRequestf(w, "name参数不存在")
+			handler.BadRequestf(w, "name参数不存在")
 			return
 		}
 
 		if err := event.Delete(c, name); err != nil {
-			InternalError(w, err)
+			handler.InternalError(w, err)
 			return
 		}
 
 		res := &Res{Result: "Delete Job Success"}
 
-		JSON(w, res, 200)
+		handler.JSON(w, res, 200)
 	}
 }
